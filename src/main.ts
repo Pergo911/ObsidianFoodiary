@@ -26,6 +26,8 @@ export default class Foodiary extends Plugin {
 			name: 'Insert food diary',
 			editorCallback: (editor: Editor, view: MarkdownView) => {
 				editor.replaceSelection("```foodiary\n\n```");
+				const cursor = editor.getCursor();
+				editor.setCursor({line: cursor.line - 1, ch: 0});
 			}
 		});
 
