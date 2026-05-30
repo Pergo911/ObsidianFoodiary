@@ -55,8 +55,12 @@ export default class FoodiaryCodeBlock {
         for (const item of income.items) {
             tr = table.createEl("tr")
             for (const col of visibleColumns) {
-                const cellValue = col.key ? item.value[col.key].toString() : item.title
-                tr.createEl("td", {text: cellValue})
+                const td = tr.createEl("td")
+                if (!col.key) {
+                    td.createEl("span", {text: `${item.title} (${item.weight.toString()})`})
+                } else {
+                    td.textContent = item.value[col.key].toString()
+                }
             }
         }
 
