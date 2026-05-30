@@ -205,18 +205,21 @@ export default class FoodiaryCodeBlock {
 
     private static async calculateIncomeTotal(income: Income) {
         for (const item of income.items) {
-            this.addNutritionalValue(income.total, item.value)
+            income.total.calories    += item.product.value.calories    * item.weight / 100
+            income.total.protein     += item.product.value.protein     * item.weight / 100
+            income.total.fat         += item.product.value.fat         * item.weight / 100
+            income.total.carbs       += item.product.value.carbs       * item.weight / 100
+            income.total.cholesterol += item.product.value.cholesterol * item.weight / 100
+            income.total.sodium      += item.product.value.sodium      * item.weight / 100
+            income.total.fiber       += item.product.value.fiber       * item.weight / 100
         }
-    }
-
-    private static async addNutritionalValue(targetValue: NutritionalValue, sourceValue: NutritionalValue) {
-        targetValue.calories    += sourceValue.calories
-        targetValue.protein     += sourceValue.protein
-        targetValue.fat         += sourceValue.fat
-        targetValue.carbs       += sourceValue.carbs
-        targetValue.cholesterol += sourceValue.cholesterol
-        targetValue.sodium      += sourceValue.sodium
-        targetValue.fiber       += sourceValue.fiber
+        income.total.calories    = Math.ceil(income.total.calories)
+        income.total.protein     = Math.ceil(income.total.protein)
+        income.total.fat         = Math.ceil(income.total.fat)
+        income.total.carbs       = Math.ceil(income.total.carbs)
+        income.total.cholesterol = Math.ceil(income.total.cholesterol)
+        income.total.sodium      = Math.ceil(income.total.sodium)
+        income.total.fiber       = Math.ceil(income.total.fiber)
     }
 
     private static async getNutritionalValue(): Promise<NutritionalValue> {
