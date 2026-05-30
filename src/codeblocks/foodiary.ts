@@ -125,7 +125,7 @@ export default class FoodiaryCodeBlock {
                 continue
             }
 
-            const incomeTitle = plugin.settings.showProductFolderTitles ? product.title : entry.title;
+            const incomeTitle = plugin.settings.showProductFolderTitles ? product.title : entry.alias;
             let incomeItem = plugin.settings.groupEntriesByTitles
                 ? result.items.find(el => el.title == incomeTitle)
                 : undefined;
@@ -205,6 +205,7 @@ export default class FoodiaryCodeBlock {
     private static async getLogEntry(input: string): Promise<LogLine> {
         const result: LogLine = {
             title: "",
+			alias: "",
             weight: 0
         }
         
@@ -226,7 +227,12 @@ export default class FoodiaryCodeBlock {
                 }                
             }
 
-            result.title = inputParts.join(" ").trim()
+            const titleAndAlias = inputParts
+				.join(" ")
+				.replace(/(\[\[)|(\]\])/g, "") // Strip link markers (`[[`, `]]`)
+				.split("|") // Support for aliases
+			result.title = titleAndAlias[0].replace(/\.md$/i, "").trim() // Both `[[Foo]]` and `[[Foo.md]]` are valid links, normalize
+			result.alias = titleAndAlias.length > 1 ? titleAndAlias[1].trim() : result.title
         }
 
         return result;
