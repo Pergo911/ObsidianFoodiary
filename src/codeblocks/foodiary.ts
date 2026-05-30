@@ -144,7 +144,9 @@ export default class FoodiaryCodeBlock {
         }
         
         await this.calculateIncomeItemValues(result)
-        await this.sortIncomeItemsByCalories(result)
+        if (plugin.settings.sortByCalories) {
+            await this.sortIncomeItemsByCalories(result)
+        }
 
         await this.calculateIncomeTotal(result)
 

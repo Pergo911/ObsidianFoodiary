@@ -8,6 +8,7 @@ import Foodiary from './main';
 export interface FoodiarySettings {
 	showProductFolderTitles: boolean;
 	groupEntriesByTitles: boolean;
+	sortByCalories: boolean;
 	productsFolder: string;
 	propertyCalories: string;
 	propertyProtein: string;
@@ -22,6 +23,7 @@ export interface FoodiarySettings {
 export const DEFAULT_SETTINGS: FoodiarySettings = {
     showProductFolderTitles: true,
     groupEntriesByTitles: true,
+	sortByCalories: true,
 	productsFolder: "Products",
     propertyCalories: "calories",
     propertyProtein: "protein",
@@ -63,6 +65,16 @@ export class FoodiarySettingTab extends PluginSettingTab {
                 .setValue(this.plugin.settings.groupEntriesByTitles)
                 .onChange(async (value) => {
                     this.plugin.settings.groupEntriesByTitles = value;
+                    await this.plugin.saveSettings();
+                }));
+
+        new Setting(containerEl)
+            .setName('Sort entries by calories')
+            .setDesc('If enabled, entries in the output table will be sorted by calories in descending order.')
+            .addToggle(text => text
+                .setValue(this.plugin.settings.sortByCalories)
+                .onChange(async (value) => {
+                    this.plugin.settings.sortByCalories = value;
                     await this.plugin.saveSettings();
                 }));
 
