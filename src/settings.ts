@@ -9,6 +9,13 @@ export interface FoodiarySettings {
 	showProductFolderTitles: boolean;
 	groupEntriesByTitles: boolean;
 	sortByCalories: boolean;
+	showColumnCalories: boolean;
+	showColumnProtein: boolean;
+	showColumnFat: boolean;
+	showColumnCarbs: boolean;
+	showColumnCholesterol: boolean;
+	showColumnSodium: boolean;
+	showColumnFiber: boolean;
 	productsFolder: string;
 	propertyCalories: string;
 	propertyProtein: string;
@@ -24,6 +31,13 @@ export const DEFAULT_SETTINGS: FoodiarySettings = {
     showProductFolderTitles: true,
     groupEntriesByTitles: true,
 	sortByCalories: true,
+	showColumnCalories: true,
+	showColumnProtein: true,
+	showColumnFat: true,
+	showColumnCarbs: true,
+	showColumnCholesterol: false,
+	showColumnSodium: false,
+	showColumnFiber: false,
 	productsFolder: "Products",
     propertyCalories: "calories",
     propertyProtein: "protein",
@@ -75,6 +89,71 @@ export class FoodiarySettingTab extends PluginSettingTab {
                 .setValue(this.plugin.settings.sortByCalories)
                 .onChange(async (value) => {
                     this.plugin.settings.sortByCalories = value;
+                    await this.plugin.saveSettings();
+                }));
+
+        new Setting(containerEl).setName('Table Columns').setHeading();
+
+        new Setting(containerEl)
+            .setName('Show Calories column')
+            .addToggle(text => text
+                .setValue(this.plugin.settings.showColumnCalories)
+                .onChange(async (value) => {
+                    this.plugin.settings.showColumnCalories = value;
+                    await this.plugin.saveSettings();
+                }));
+
+        new Setting(containerEl)
+            .setName('Show Protein column')
+            .addToggle(text => text
+                .setValue(this.plugin.settings.showColumnProtein)
+                .onChange(async (value) => {
+                    this.plugin.settings.showColumnProtein = value;
+                    await this.plugin.saveSettings();
+                }));
+
+        new Setting(containerEl)
+            .setName('Show Fat column')
+            .addToggle(text => text
+                .setValue(this.plugin.settings.showColumnFat)
+                .onChange(async (value) => {
+                    this.plugin.settings.showColumnFat = value;
+                    await this.plugin.saveSettings();
+                }));
+
+        new Setting(containerEl)
+            .setName('Show Carbs column')
+            .addToggle(text => text
+                .setValue(this.plugin.settings.showColumnCarbs)
+                .onChange(async (value) => {
+                    this.plugin.settings.showColumnCarbs = value;
+                    await this.plugin.saveSettings();
+                }));
+
+        new Setting(containerEl)
+            .setName('Show Cholesterol column')
+            .addToggle(text => text
+                .setValue(this.plugin.settings.showColumnCholesterol)
+                .onChange(async (value) => {
+                    this.plugin.settings.showColumnCholesterol = value;
+                    await this.plugin.saveSettings();
+                }));
+
+        new Setting(containerEl)
+            .setName('Show Sodium column')
+            .addToggle(text => text
+                .setValue(this.plugin.settings.showColumnSodium)
+                .onChange(async (value) => {
+                    this.plugin.settings.showColumnSodium = value;
+                    await this.plugin.saveSettings();
+                }));
+
+        new Setting(containerEl)
+            .setName('Show Fiber column')
+            .addToggle(text => text
+                .setValue(this.plugin.settings.showColumnFiber)
+                .onChange(async (value) => {
+                    this.plugin.settings.showColumnFiber = value;
                     await this.plugin.saveSettings();
                 }));
 

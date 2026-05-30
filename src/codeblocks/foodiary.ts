@@ -34,31 +34,37 @@ export default class FoodiaryCodeBlock {
         
         const table = body.createEl("table")
 
+        const columnDefs = [
+            { label: "Product",     key: null,                setting: null },
+            { label: "Calories",    key: "calories" as const, setting: plugin.settings.showColumnCalories },
+            { label: "Protein",     key: "protein"  as const, setting: plugin.settings.showColumnProtein },
+            { label: "Fat",         key: "fat"      as const, setting: plugin.settings.showColumnFat },
+            { label: "Carbs",       key: "carbs"    as const, setting: plugin.settings.showColumnCarbs },
+            { label: "Cholesterol", key: "cholesterol" as const, setting: plugin.settings.showColumnCholesterol },
+            { label: "Sodium",      key: "sodium"      as const, setting: plugin.settings.showColumnSodium },
+            { label: "Fiber",       key: "fiber"       as const, setting: plugin.settings.showColumnFiber },
+        ]
+
+        const visibleColumns = columnDefs.filter(col => col.setting !== false)
+
         let tr = table.createEl("tr")
-        tr.createEl("th", {text: "Product"})
-        tr.createEl("th", {text: "Calories"})
-        tr.createEl("th", {text: "Protein"})
-        tr.createEl("th", {text: "Fat"})
-        tr.createEl("th", {text: "Carbs"})
+        for (const col of visibleColumns) {
+            tr.createEl("th", {text: col.label})
+        }
 
         for (const item of income.items) {
-
             tr = table.createEl("tr")
-
-            tr.createEl("td", {text: item.title})
-            tr.createEl("td", {text: item.value.calories.toString()})
-            tr.createEl("td", {text: item.value.protein.toString()})
-            tr.createEl("td", {text: item.value.fat.toString()})
-            tr.createEl("td", {text: item.value.carbs.toString()})
+            for (const col of visibleColumns) {
+                const cellValue = col.key ? item.value[col.key].toString() : item.title
+                tr.createEl("td", {text: cellValue})
+            }
         }
 
         tr = table.createEl("tr")
-        
-        tr.createEl("td", {text: "TOTAL"})
-        tr.createEl("td", {text: income.total.calories.toString()})
-        tr.createEl("td", {text: income.total.protein.toString()})
-        tr.createEl("td", {text: income.total.fat.toString()})
-        tr.createEl("td", {text: income.total.carbs.toString()})        
+        for (const col of visibleColumns) {
+            const cellValue = col.key ? income.total[col.key].toString() : "TOTAL"
+            tr.createEl("td", {text: cellValue})
+        }        
         
         if (plugin.settings.propertyDailyCalorieGoal != "") {
             
@@ -157,10 +163,13 @@ export default class FoodiaryCodeBlock {
 
     private static async calculateIncomeItemValues(income: Income) {
         for (const item of income.items) {
-            item.value.calories = Math.ceil(item.product.value.calories * item.weight / 100)
-            item.value.protein  = Math.ceil(item.product.value.protein  * item.weight / 100)
-            item.value.fat      = Math.ceil(item.product.value.fat      * item.weight / 100)
-            item.value.carbs    = Math.ceil(item.product.value.carbs    * item.weight / 100)
+            item.value.calories    = Math.ceil(item.product.value.calories    * item.weight / 100)
+            item.value.protein     = Math.ceil(item.product.value.protein     * item.weight / 100)
+            item.value.fat         = Math.ceil(item.product.value.fat         * item.weight / 100)
+            item.value.carbs       = Math.ceil(item.product.value.carbs       * item.weight / 100)
+            item.value.cholesterol = Math.ceil(item.product.value.cholesterol * item.weight / 100)
+            item.value.sodium      = Math.ceil(item.product.value.sodium      * item.weight / 100)
+            item.value.fiber       = Math.ceil(item.product.value.fiber       * item.weight / 100)
         }
     }
 
@@ -184,10 +193,13 @@ export default class FoodiaryCodeBlock {
     }
 
     private static async addNutritionalValue(targetValue: NutritionalValue, sourceValue: NutritionalValue) {
-        targetValue.calories += sourceValue.calories
-        targetValue.protein += sourceValue.protein
-        targetValue.fat += sourceValue.fat
-        targetValue.carbs += sourceValue.carbs
+        targetValue.calories    += sourceValue.calories
+        targetValue.protein     += sourceValue.protein
+        targetValue.fat         += sourceValue.fat
+        targetValue.carbs       += sourceValue.carbs
+        targetValue.cholesterol += sourceValue.cholesterol
+        targetValue.sodium      += sourceValue.sodium
+        targetValue.fiber       += sourceValue.fiber
     }
 
     private static async getNutritionalValue(): Promise<NutritionalValue> {
