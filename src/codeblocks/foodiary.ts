@@ -60,35 +60,48 @@ export default class FoodiaryCodeBlock {
             }
         }
 
+        let goal = 0
+        let hasGoal = false
+
+        if (plugin.settings.propertyDailyCalorieGoal != "") {
+            const currentFile = plugin.app.workspace.getActiveFile();
+            if (currentFile) {
+                const frontmatter = await this.fileProperties(plugin, currentFile);
+                if (frontmatter) {
+                    goal = this.propertyValue(frontmatter[plugin.settings.propertyDailyCalorieGoal]);
+                    hasGoal = goal > 0
+                }
+            }
+        }
+
         tr = table.createEl("tr")
         for (const col of visibleColumns) {
-            const cellValue = col.key ? income.total[col.key].toString() : "TOTAL"
-            tr.createEl("td", {text: cellValue})
-        }        
-        
-        if (plugin.settings.propertyDailyCalorieGoal != "") {
-            
-            const currentFile = plugin.app.workspace.getActiveFile();
-            if (!currentFile) {
-                console.warn("No active file found.");
-                return;
+            let cellValue: string
+            if (!col.key) {
+                cellValue = "Total"
+            } else if (col.key === "calories" && hasGoal) {
+                cellValue = income.total.calories.toString() + " / " + goal.toString()
+            } else {
+                cellValue = income.total[col.key].toString()
             }
+            tr.createEl("td").createEl("strong", {text: cellValue})
+        }
 
-            const frontmatter = await this.fileProperties(plugin, currentFile);
-            if (!frontmatter) {
-                console.warn("No frontmatter found in the current file.");
-                return;
-            }
+        if (hasGoal) {
+            const remaining = goal - income.total.calories
 
-            const goal = this.propertyValue(frontmatter[plugin.settings.propertyDailyCalorieGoal]);
-
-            const remaining = (goal - income.total.calories)
-   
             tr = table.createEl("tr")
-            
-            tr.createEl("td", {text: "REMAINING"})
-            tr.createEl("td", {text: remaining.toString() + ' / ' + goal.toString() })
-
+            for (const col of visibleColumns) {
+                let cellValue: string
+                if (!col.key) {
+                    cellValue = "Remaining"
+                } else if (col.key === "calories") {
+                    cellValue = remaining.toString()
+                } else {
+                    cellValue = ""
+                }
+                tr.createEl("td").createEl("strong", {text: cellValue})
+            }
         }
         
     }
