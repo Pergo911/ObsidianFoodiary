@@ -14,11 +14,23 @@ export interface NutritionalValue {
 	fiber: number;
 }
 
+export const nutritionalValueKeys: Array<keyof NutritionalValue> = [
+	"calories",
+	"protein",
+	"fat",
+	"carbs",
+	"cholesterol",
+	"sodium",
+	"fiber",
+];
+
 export interface IncomeItem {
-    product: Product;
+    product?: Product;
     weight: number;
+    weightIsUnknown?: boolean;
     title: string;
     value: NutritionalValue;
+    oneOff?: NutritionalValue;
 }
 
 export interface Income {
@@ -31,4 +43,6 @@ export interface LogLine {
     title: string;
 	alias: string;
     weight: number;
+    weightIsUnknown?: boolean;
+    oneOff?: NutritionalValue;
 }
