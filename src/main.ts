@@ -36,6 +36,7 @@ export default class Foodiary extends Plugin {
             try 
             {            
                 const root = el.createEl("div");
+				root.style.overflow = "auto";
                 const body = root.createEl("div");
 
                 await FoodiaryCodeBlock.renderDiary(this, src, body, ctx);
