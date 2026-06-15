@@ -21,102 +21,6 @@ export default class FoodiaryCodeBlock {
     ) {
         const income = await this.income(plugin, src);
 
-        if (income.unknownProducts.length > 0) {
-            const upLines = [];
-
-            upLines.push("> [!missing] Missing products");
-
-            for (const item of income.unknownProducts) {
-                upLines.push(
-                    `> - [[${plugin.settings.productsFolder}/${item.toString()}|${item.toString()}]]`,
-                );
-            }
-
-            MarkdownRenderer.render(
-                plugin.app,
-                upLines.join("\n"),
-                body,
-                "",
-                plugin,
-            );
-            body.createEl("br");
-        }
-
-        const table = body.createEl("table");
-
-        const columnDefs = [
-            { label: "Product", key: null, setting: null },
-            {
-                label: "Calories",
-                key: "calories" as const,
-                setting: plugin.settings.showColumnCalories,
-            },
-            {
-                label: "Protein",
-                key: "protein" as const,
-                setting: plugin.settings.showColumnProtein,
-            },
-            {
-                label: "Fat",
-                key: "fat" as const,
-                setting: plugin.settings.showColumnFat,
-            },
-            {
-                label: "Carbs",
-                key: "carbs" as const,
-                setting: plugin.settings.showColumnCarbs,
-            },
-            {
-                label: "Cholesterol",
-                key: "cholesterol" as const,
-                setting: plugin.settings.showColumnCholesterol,
-            },
-            {
-                label: "Sodium",
-                key: "sodium" as const,
-                setting: plugin.settings.showColumnSodium,
-            },
-            {
-                label: "Fiber",
-                key: "fiber" as const,
-                setting: plugin.settings.showColumnFiber,
-            },
-        ];
-
-        const visibleColumns = columnDefs.filter(
-            (col) => col.setting !== false,
-        );
-
-        let tr = table.createEl("tr");
-        for (const col of visibleColumns) {
-            tr.createEl("th", { text: col.label });
-        }
-
-        for (const item of income.items) {
-            tr = table.createEl("tr");
-            for (const col of visibleColumns) {
-                const td = tr.createEl("td");
-                if (!col.key) {
-                    const weightText = item.weightIsUnknown ? "?" : item.weight.toString();
-                    if (item.product?.path) {
-                        await MarkdownRenderer.render(
-                            plugin.app,
-                            `[[${item.product.path}|${item.title}]] (${weightText})`,
-                            td,
-                            "",
-                            plugin,
-                        );
-                    } else {
-                        td.createEl("span", {
-                            text: `${item.title} (${weightText})`,
-                        });
-                    }
-                } else {
-                    td.textContent = item.value[col.key].toString();
-                }
-            }
-        }
-
         let goal = 0;
         let hasGoal = false;
 
@@ -136,36 +40,140 @@ export default class FoodiaryCodeBlock {
             }
         }
 
-        tr = table.createEl("tr");
-        for (const col of visibleColumns) {
-            let cellValue: string;
-            if (!col.key) {
-                cellValue = "Total";
-            } else if (col.key === "calories" && hasGoal) {
-                cellValue =
-                    income.total.calories.toString() + " / " + goal.toString();
-            } else {
-                cellValue = income.total[col.key].toString();
+        const lines: string[] = [];
+
+        if (income.unknownProducts.length > 0) {
+            lines.push("> [!missing] Missing products");
+
+            for (const item of income.unknownProducts) {
+                lines.push(
+                    `> - [[${plugin.settings.productsFolder}/${item}|${item}]]`,
+                );
             }
-            tr.createEl("td").createEl("strong", { text: cellValue });
+
+            lines.push("");
         }
+
+        const columnDefs = [
+            {
+                label: "Product",
+                key: null,
+                setting: null,
+                align: "left" as const,
+            },
+            {
+                label: "Calories",
+                key: "calories" as const,
+                setting: plugin.settings.showColumnCalories,
+                align: "right" as const,
+            },
+            {
+                label: "Protein",
+                key: "protein" as const,
+                setting: plugin.settings.showColumnProtein,
+                align: "right" as const,
+            },
+            {
+                label: "Fat",
+                key: "fat" as const,
+                setting: plugin.settings.showColumnFat,
+                align: "right" as const,
+            },
+            {
+                label: "Carbs",
+                key: "carbs" as const,
+                setting: plugin.settings.showColumnCarbs,
+                align: "right" as const,
+            },
+            {
+                label: "Cholesterol",
+                key: "cholesterol" as const,
+                setting: plugin.settings.showColumnCholesterol,
+                align: "right" as const,
+            },
+            {
+                label: "Sodium",
+                key: "sodium" as const,
+                setting: plugin.settings.showColumnSodium,
+                align: "right" as const,
+            },
+            {
+                label: "Fiber",
+                key: "fiber" as const,
+                setting: plugin.settings.showColumnFiber,
+                align: "right" as const,
+            },
+        ];
+
+        const visibleColumns = columnDefs.filter(
+            (col) => col.setting !== false,
+        );
+
+        const header = "| " + visibleColumns.map((col) => col.label).join(" | ") + " |";
+        const separator = "| " + visibleColumns.map((col) =>
+            col.align === "right" ? "---:" : "---"
+        ).join(" | ") + " |";
+
+        const tableLines = [header, separator];
+
+        for (const item of income.items) {
+            const cells = visibleColumns.map((col) => {
+                if (!col.key) {
+                    const weightText = item.weightIsUnknown ? "?" : item.weight.toString();
+
+                    if (item.product?.path) {
+                        return `[[${item.product.path}\\|${item.title}]] (${weightText})`;
+                    }
+
+                    return `${item.title} (${weightText})`;
+                }
+
+                return item.value[col.key].toString();
+            });
+
+            tableLines.push("| " + cells.join(" | ") + " |");
+        }
+
+        const totalCells = visibleColumns.map((col) => {
+            if (!col.key) {
+                return "**Total**";
+            }
+
+            if (col.key === "calories" && hasGoal) {
+                return `**${income.total.calories.toString()} / ${goal.toString()}**`;
+            }
+
+            return `**${income.total[col.key].toString()}**`;
+        });
+        tableLines.push("| " + totalCells.join(" | ") + " |");
 
         if (hasGoal) {
             const remaining = goal - income.total.calories;
 
-            tr = table.createEl("tr");
-            for (const col of visibleColumns) {
-                let cellValue: string;
+            const remainingCells = visibleColumns.map((col) => {
                 if (!col.key) {
-                    cellValue = "Remaining";
-                } else if (col.key === "calories") {
-                    cellValue = remaining.toString();
-                } else {
-                    cellValue = "";
+                    return "**Remaining**";
                 }
-                tr.createEl("td").createEl("strong", { text: cellValue });
-            }
+
+                if (col.key === "calories") {
+                    return `**${remaining.toString()}**`;
+                }
+
+                return "";
+            });
+
+            tableLines.push("| " + remainingCells.join(" | ") + " |");
         }
+
+        lines.push(...tableLines);
+
+        await MarkdownRenderer.render(
+            plugin.app,
+            lines.join("\n"),
+            body,
+            ctx.sourcePath,
+            plugin,
+        );
     }
 
     private static propertyValue(propertyValue: number) {
