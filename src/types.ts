@@ -1,6 +1,7 @@
 export interface Product {
     title: string;
     titles: Array<string>;
+    path: string;
     value: NutritionalValue
 }
 

@@ -52,6 +52,7 @@ export default class FoodiaryProducts {
             const product = {
                 title: file.basename,
                 titles: titles,
+                path: file.path.replace(/\.md$/i, ""),
                 value: {
                     calories:       this.propertyValue(productProperties[plugin.settings.propertyCalories]),
                     protein:        this.propertyValue(productProperties[plugin.settings.propertyProtein]),

@@ -97,9 +97,20 @@ export default class FoodiaryCodeBlock {
             for (const col of visibleColumns) {
                 const td = tr.createEl("td");
                 if (!col.key) {
-                    td.createEl("span", {
-                        text: `${item.title} (${item.weightIsUnknown ? "?" : item.weight.toString()})`,
-                    });
+                    const weightText = item.weightIsUnknown ? "?" : item.weight.toString();
+                    if (item.product?.path) {
+                        await MarkdownRenderer.render(
+                            plugin.app,
+                            `[[${item.product.path}|${item.title}]] (${weightText})`,
+                            td,
+                            "",
+                            plugin,
+                        );
+                    } else {
+                        td.createEl("span", {
+                            text: `${item.title} (${weightText})`,
+                        });
+                    }
                 } else {
                     td.textContent = item.value[col.key].toString();
                 }
