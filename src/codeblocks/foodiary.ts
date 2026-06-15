@@ -224,7 +224,9 @@ export default class FoodiaryCodeBlock {
                     result.items.push(newItem);
                     incomeItem = result.items[result.items.length - 1];
                 } else {
-                    this.addOneOffValues(entry.oneOff, incomeItem.oneOff!);
+                    if (incomeItem.oneOff) {
+                        this.addOneOffValues(entry.oneOff, incomeItem.oneOff);
+                    }
                     this.addOneOffValues(entry.oneOff, incomeItem.value);
                 }
 
@@ -290,29 +292,29 @@ export default class FoodiaryCodeBlock {
 
     private static async calculateIncomeItemValues(income: Income) {
         for (const item of income.items) {
-            if (item.oneOff) {
+            if (item.oneOff || !item.product) {
                 continue;
             }
             item.value.calories = Math.ceil(
-                (item.product!.value.calories * item.weight) / 100,
+                (item.product.value.calories * item.weight) / 100,
             );
             item.value.protein = Math.ceil(
-                (item.product!.value.protein * item.weight) / 100,
+                (item.product.value.protein * item.weight) / 100,
             );
             item.value.fat = Math.ceil(
-                (item.product!.value.fat * item.weight) / 100,
+                (item.product.value.fat * item.weight) / 100,
             );
             item.value.carbs = Math.ceil(
-                (item.product!.value.carbs * item.weight) / 100,
+                (item.product.value.carbs * item.weight) / 100,
             );
             item.value.cholesterol = Math.ceil(
-                (item.product!.value.cholesterol * item.weight) / 100,
+                (item.product.value.cholesterol * item.weight) / 100,
             );
             item.value.sodium = Math.ceil(
-                (item.product!.value.sodium * item.weight) / 100,
+                (item.product.value.sodium * item.weight) / 100,
             );
             item.value.fiber = Math.ceil(
-                (item.product!.value.fiber * item.weight) / 100,
+                (item.product.value.fiber * item.weight) / 100,
             );
         }
     }
@@ -340,20 +342,20 @@ export default class FoodiaryCodeBlock {
                 income.total.cholesterol += item.value.cholesterol;
                 income.total.sodium += item.value.sodium;
                 income.total.fiber += item.value.fiber;
-            } else {
+            } else if (item.product) {
                 income.total.calories +=
-                    (item.product!.value.calories * item.weight) / 100;
+                    (item.product.value.calories * item.weight) / 100;
                 income.total.protein +=
-                    (item.product!.value.protein * item.weight) / 100;
-                income.total.fat += (item.product!.value.fat * item.weight) / 100;
+                    (item.product.value.protein * item.weight) / 100;
+                income.total.fat += (item.product.value.fat * item.weight) / 100;
                 income.total.carbs +=
-                    (item.product!.value.carbs * item.weight) / 100;
+                    (item.product.value.carbs * item.weight) / 100;
                 income.total.cholesterol +=
-                    (item.product!.value.cholesterol * item.weight) / 100;
+                    (item.product.value.cholesterol * item.weight) / 100;
                 income.total.sodium +=
-                    (item.product!.value.sodium * item.weight) / 100;
+                    (item.product.value.sodium * item.weight) / 100;
                 income.total.fiber +=
-                    (item.product!.value.fiber * item.weight) / 100;
+                    (item.product.value.fiber * item.weight) / 100;
             }
         }
         income.total.calories = Math.ceil(income.total.calories);
